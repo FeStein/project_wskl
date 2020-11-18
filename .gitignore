@@ -1,6 +1,8 @@
 # Personal .gitignore stuff
 
-#Maybe add stuff in the data folder later sincce i dont want to track the date in github
+#untrack some data folders
+data/DAPRA_LAGR/
+.nosync
 
 
 
