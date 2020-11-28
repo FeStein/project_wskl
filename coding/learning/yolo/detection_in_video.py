@@ -7,6 +7,7 @@ import argparse
 import time
 import cv2
 import os
+import logging
 
 #path variables
 darknet_path = "/home/felix/Programs/darknet"  # $DARKNET_PATH
@@ -22,7 +23,14 @@ ap.add_argument("-c", "--confidence", type=float, default=0.5,
 ap.add_argument("-t", "--threshold", type=float, default=0.3,
                 help="threshold when applying non-maxima suppression")
 
+ap.add_argument("-l", "--logging", type=bool, default=False, 
+                help="enable or disable logging")
+
 args = vars(ap.parse_args())
+
+print("Running video analysis using YOLO")
+
+if args["logging"]: print("Logging is activated - but not implemented yet")
 
 #get labeles -> contained in darknet data folder | all labels yolo is trained on
 labelsPath = os.path.sep.join([darknet_path, "data", "coco.names"])
@@ -44,8 +52,7 @@ ln = net.getLayerNames()
 ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 
 # get video stream tbd: via argparse
-video_path = args['video_stream']
-cap = cv2.VideoCapture(video_path)
+cap = cv2.VideoCapture(args["video_stream"])
 
 while True:
     ret, img = cap.read()

@@ -13,6 +13,7 @@ what you are doing before you apply anything blindfolded (Check that the paths
 are correct for example).
 
 ## Installing OpenCV (Anaconda environment)
+
 Assuming you have installed (Mini)conda you can create an Anaconda Environment
 and install *FFMPeg* and *OpenCV* with:
 ```bash
@@ -26,12 +27,28 @@ pip install opencv-contrib-python
 `FFMPeg` is needed in case you want to work with videos on *OpenCV* and needs to
 be installed before *OpenCV*.
 
-## Install Darknet and YOLO
+### Installing OpenCV from Source (core modules)
 
 ```bash
+sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev
+sudo apt-get install libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev
+sudo apt-get install libgtk2.0-dev
+sudo apt update && sudo apt install -y cmake g++ wget unzip
+wget -O opencv.zip https://github.com/opencv/opencv/archive/master.zip
+unzip opencv.zip
+mkdir -p opencv-build && cd opencv-build
+cmake  ../opencv-master .
+sudo make install
+```
+You should now run `import cv2` and test if it runs without producing errors. 
+
+### Installing Darknet with OpenCV support
+
+After installing OpenCV we can try to install darknet to implement the YOLO
+Algorithm:
+```bash
 git clone https://github.com/pjreddie/darknet.git
-cd darknet
-make
+cd darknet && make -j4
 ```
 If you want to compile using OpenCV, open the Makefile and set `OPENCV=1`. Same
 applies to CUDA but i didn't tried that out yet.I added a system variable by
@@ -39,9 +56,3 @@ adding the Darknet path to my system configuration:
 ```bash
 export DARKNET_PATH=/home/felix/Programs/darknet
 ```
-**This stuff doesn't work properly yet looks like I need to compile OpenCV from
-scratch in order to use it with darknet. I should include a bash script in order
-to install it**
-
-
-
