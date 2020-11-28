@@ -7,7 +7,7 @@ import argparse
 import time
 import cv2
 import os
-import logging
+import logging as lg
 
 #path variables
 darknet_path = "/home/felix/Programs/darknet"  # $DARKNET_PATH
@@ -28,9 +28,17 @@ ap.add_argument("-l", "--logging", type=bool, default=False,
 
 args = vars(ap.parse_args())
 
+# set logging stuff
 print("Running video analysis using YOLO")
 
-if args["logging"]: print("Logging is activated - but not implemented yet")
+if args["logging"]: 
+    print("Logging is activated - but not implemented yet")
+    lg.basicConfig(level=lg.INFO)
+
+#log some basic inputs
+lg.info("video stream: {}".format(args["video_stream"]))
+lg.info("confidence: {}".format(args["confidence"]))
+lg.info("threshold: {}".format(args["threshold"]))
 
 #get labeles -> contained in darknet data folder | all labels yolo is trained on
 labelsPath = os.path.sep.join([darknet_path, "data", "coco.names"])
@@ -51,12 +59,18 @@ net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
 ln = net.getLayerNames()
 ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 
+lg.info("=======start detection=========")
+
 # get video stream tbd: via argparse
 cap = cv2.VideoCapture(args["video_stream"])
 
+frame_number = 0
 while True:
     ret, img = cap.read()
     (H, W) = img.shape[:2]
+
+    lg.info("Process frame {}".format(frame_number))
+    frame_number += 1
 
     #blop -> forward pass to YOLO obj. detector: bounding boxes + probabilities
     blob = cv2.dnn.blobFromImage(img, 1 / 255.0, (416, 416),
@@ -66,7 +80,7 @@ while True:
     layerOutputs = net.forward(ln)
     end = time.time()
 
-    print("Frame analysis via YOLO took {:.6f} seconds".format(end - start))
+    lg.info("Object detection in Frame via YOLO took {:.7f} seconds".format(end - start))
 
     #visualize results:
     boxes = []
@@ -93,6 +107,8 @@ while True:
     # apply non-maxima suppression to suppress weak, overlapping bounding boxes
     idxs = cv2.dnn.NMSBoxes(boxes, confidences, args["confidence"],
                             args["threshold"])
+
+    lg.info("Found {} bounding boxes above the confidence level".format(len(idxs)))
 
     if len(idxs) > 0:
         for i in idxs.flatten():
