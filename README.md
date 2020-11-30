@@ -29,8 +29,11 @@ be installed before *OpenCV*.
 
 ### Installing OpenCV from Source (core modules)
 
+Configure your `CMakeListings.txt` before running cmake (enable and specify
+python3).
+
 ```bash
-sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev
+sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev libwebp-dev
 sudo apt-get install libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev
 sudo apt-get install libgtk2.0-dev
 sudo apt update && sudo apt install -y cmake g++ wget unzip

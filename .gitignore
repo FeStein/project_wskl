@@ -3,6 +3,7 @@
 #untrack some data folders
 data/DAPRA_LAGR/
 data/OpenCV_Test/
+data/yt_wskl/
 .nosync
 
 

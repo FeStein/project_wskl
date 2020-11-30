@@ -32,7 +32,7 @@ tutorial with classifying in videos. As input video stream a SmartFactory
 Youtube Video is used. Currently working add proper arg-parse and logging. To
 run the script properly use:
 ```bash
-python3 detection_in_video.py -vs ../../../data/SF_YT/YT_SF_KL_1.mp4
+python3 detection_in_video.py -vs ../../../data/yt_wskl/youtube_wskl_1.mp4
 ```
 You can specify additional conditions with:
 |  flag      |    behavior       |  default   	|
