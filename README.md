@@ -37,8 +37,8 @@ sudo apt update && sudo apt install -y cmake g++ wget unzip
 wget -O opencv.zip https://github.com/opencv/opencv/archive/master.zip
 unzip opencv.zip
 mkdir -p opencv-build && cd opencv-build
-cmake  ../opencv-master .
-sudo make install
+cmake  ../opencv-master
+sudo make install -j4
 ```
 You should now run `import cv2` and test if it runs without producing errors. 
 
