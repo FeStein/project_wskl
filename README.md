@@ -12,6 +12,11 @@ so please use the install instructions with care and make sure you understand
 what you are doing before you apply anything blindfolded (Check that the paths
 are correct for example).
 
+## Content
+
+* **scripts/** - Contains a collection of some useful scripts for the whole
+    process (processing raw videos, installations, visualizations)
+
 ## Installing OpenCV (Anaconda environment)
 
 Assuming you have installed (Mini)conda you can create an Anaconda Environment
