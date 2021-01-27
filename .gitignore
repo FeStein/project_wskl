@@ -8,6 +8,8 @@ data/sf_processed/
 .nosync
 local/
 
+data/vot/vot2019/*
+
 
 
 # Created by https://www.toptal.com/developers/gitignore/api/linux,macos,vim,python
