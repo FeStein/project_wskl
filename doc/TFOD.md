@@ -82,16 +82,16 @@ item{
 ## Create Tensorflow Records
 Run inside **/data/** of the docker container:
 ```bash
-python3 generate_tfrecord.py -x '/data/images/train' -l '/data/annotations/label_map.pbtxt' -o '/data/annotations/train.record'
-python3 generate_tfrecord.py -x '/data/images/test' -l '/data/annotations/label_map.pbtxt' -o '/data/annotations/test.record'
+python3 /data/generate_tfrecord.py -x '/data/images/train' -l '/data/annotations/label_map.pbtxt' -o '/data/annotations/train.record'
+python3 /data/generate_tfrecord.py -x '/data/images/test' -l '/data/annotations/label_map.pbtxt' -o '/data/annotations/test.record'
 ```
 
 ## Train the model
 Faster R-CNN
 ```bash
-python4 /scripts/model_main_tf2.py --model_dir=/cfg/models/faster_rcnn_v1 --pipeline_config_path=/cfg/models/faster_rcnn_v1/pipeline.config
+python3 /scripts/model_main_tf2.py --model_dir=/cfg/models/faster_rcnn_v1 --pipeline_config_path=/cfg/models/faster_rcnn_v1/pipeline.config
 ```
-Efficienet
+Efficiendet
 ```bash
 python3 /scripts/model_main_tf2.py --model_dir=/cfg/models/EfficientDet_D4_v1 --pipeline_config_path=/cfg/models/EfficientDet_D4_v1/pipeline.config
 ```
