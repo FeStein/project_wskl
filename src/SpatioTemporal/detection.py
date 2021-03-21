@@ -25,11 +25,12 @@ class Detector(abc.ABC):
         self.configPath = settings["configPath"]
 
         self.logging = settings["logging"]
-        self._init_logging()
+        self._init_logging(settings["logLevel"])
 
-    def _init_logging(self):
+    def _init_logging(self, log_level):
         """Init the logging for object detection"""
-        pass
+        lg.basicConfig(format="ObjectDetector - %(levelname)s - %(message)s", level = log_level)
+        print("Hello")
     
     @abc.abstractmethod
     def detect(self, image):
@@ -50,6 +51,7 @@ class YOLO_Detector(Detector):
     def __init__(self, settings_json):
         """TODO: to be defined. """
         Detector.__init__(self, settings_json)
+        lg.info("Initialize YOLO Object detector")
 
         with open(settings_json) as settings_file:
             settings = json.load(settings_file)["detection"]
@@ -59,30 +61,36 @@ class YOLO_Detector(Detector):
         self.threshold = settings["threshold"]
 
         # load YOLO from its path
+        lg.debug("Load YOLO weigths")
         self.net = cv2.dnn.readNetFromDarknet(self.configPath, self.weightsPath)
 
         #get names of output layer from yolo
+        lg.debug("Setting layer names")
         self.layerNames = self.net.getLayerNames()
         self.layerNames = [self.layerNames[i[0] - 1] for i in self.net.getUnconnectedOutLayers()]
+
+        self.image_number = 0
 
 
 
     def detect(self, image):
         #blop -> forward pass to YOLO obj. detector: bounding boxes + probabilities
-        #start = time.time()
+        self.image_number += 1
+        start = time.time()
         blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (416, 416),
                                      swapRB=True, crop=False)
         self.net.setInput(blob)
         layerOutputs = self.net.forward(self.layerNames)
-        #end = time.time()
-        #lg.info( "Object detection in Frame via YOLO took {:.7f} seconds".format(end - start))
+        end = time.time()
+        lg.info( "Object detection in Image {} via YOLO took {:.7f} seconds".format(self.image_number, end - start))
 
         (H, W) = image.shape[:2]
 
         boxes = []
         confidences = []
         classIDs = []
-
+        
+        lg.debug("{} layer outputs found".format(len(layerOutputs)))
         for output in layerOutputs:
             for detection in output:
                 # extract the class ID and confidence of bounding box
@@ -103,6 +111,8 @@ class YOLO_Detector(Detector):
         # apply non-maxima suppression to suppress weak, overlapping bounding boxes
         idxs = cv2.dnn.NMSBoxes(boxes, confidences, self.confidence,
                 self.threshold)
+
+        lg.debug("{} resulting bounding boxes found".format(len(idxs)))
         
         detections = []
         if len(idxs) > 0:
