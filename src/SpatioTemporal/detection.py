@@ -37,7 +37,7 @@ class Detector(abc.ABC):
 
         :image: image in opencv format
         :returns: List of bounding boxes in format:
-            [(label, [x,y,h,w])]
+            [(label, (x,y), (x + w,y + h])]
         """
         return
 
@@ -55,6 +55,8 @@ class YOLO_Detector(Detector):
             settings = json.load(settings_file)["detection"]
 
         self.darknetPath = settings["darknetPath"]
+        self.confidence = settings["confidence"]
+        self.threshold = settings["threshold"]
 
         # load YOLO from its path
         self.net = cv2.dnn.readNetFromDarknet(self.configPath, self.weightsPath)
@@ -67,16 +69,50 @@ class YOLO_Detector(Detector):
 
     def detect(self, image):
         #blop -> forward pass to YOLO obj. detector: bounding boxes + probabilities
-        start = time.time()
+        #start = time.time()
         blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (416, 416),
                                      swapRB=True, crop=False)
         self.net.setInput(blob)
         layerOutputs = self.net.forward(self.layerNames)
-        end = time.time()
+        #end = time.time()
+        #lg.info( "Object detection in Frame via YOLO took {:.7f} seconds".format(end - start))
 
-        lg.info( "Object detection in Frame via YOLO took {:.7f} seconds".format(end - start))
+        (H, W) = image.shape[:2]
 
-        return layerOutputs
+        boxes = []
+        confidences = []
+        classIDs = []
+
+        for output in layerOutputs:
+            for detection in output:
+                # extract the class ID and confidence of bounding box
+                scores = detection[5:]
+                classID = np.argmax(scores)
+                confidence = scores[classID]
+
+                #filter bad predictions and calulate box from center stuf
+                if confidence > self.confidence:
+                    box = detection[0:4] * np.array([W, H, W, H])
+                    (centerX, centerY, width, height) = box.astype("int")
+                    x = int(centerX - (width / 2))
+                    y = int(centerY - (height / 2))
+                    boxes.append([x, y, int(width), int(height)])
+                    confidences.append(float(confidence))
+                    classIDs.append(classID)
+
+        # apply non-maxima suppression to suppress weak, overlapping bounding boxes
+        idxs = cv2.dnn.NMSBoxes(boxes, confidences, self.confidence,
+                self.threshold)
+        
+        detections = []
+        if len(idxs) > 0:
+            for i in idxs.flatten():
+                (x, y) = (boxes[i][0], boxes[i][1])
+                (w, h) = (boxes[i][2], boxes[i][3])
+
+                detections.append((self.LABLES[classIDs[i]],(x, y), (x + w, y + h)))
+
+        return detections
 
 class FRCNN_Detector(Detector):
 
@@ -100,10 +136,25 @@ class Visualizer():
         :settings: TODO
 
         """
-        self._settings = settings
+        print("Init vis")
 
-    def visualize(self):
-        pass 
+    def visualize(self, detections, image):
+
+        for bb in detections:
+            color = 123
+            cv2.rectangle(image, bb[1], bb[2], color, 2)
+            text = bb[0] 
+            cv2.putText(image, bb[0], (bb[1][0], bb[1][1] - 5), cv2.FONT_HERSHEY_SIMPLEX,
+                        0.5, color, 2)
+
+        cv2.imshow('img', image)
+        k = cv2.waitKey(20) & 0xff
+        if k == 32:
+            cv2.destroyAllWindows()
+            sys.exit()
+
+    def destruct(self):
+        cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     det = YOLO_Detector("../settings.json")
