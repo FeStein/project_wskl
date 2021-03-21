@@ -1,0 +1,21 @@
+{
+    "general":{
+        "logging":true
+    },
+    "path":{
+        "images":"/home/felix/Documents/vot2019/sequences/car1",
+        "ground_truth_name":"groundtruth.txt"
+    },
+    "detection":{
+        "logging":true,
+        "darknetPath":"/home/felix/Programs/darknet",
+        "labelPath":"/home/felix/Programs/darknet/data/coco.names",
+        "weightsPath":"/home/felix/Programs/darknet/yolov3.weights",
+        "configPath":"/home/felix/Programs/darknet/cfg/yolov3.cfg",
+        "confidence":0.3,
+        "threshold":0.5
+    },
+    "tube":{
+        "test":true
+    }
+}
