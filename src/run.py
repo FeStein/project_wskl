@@ -40,7 +40,9 @@ VIS = det.Visualizer("settings.json")
 for frame_number, img_name in enumerate(sequence_images):
     #construct image path and read in img
     img_path = os.path.join(image_sequence_folder, img_name)
+
     img = cv2.imread(img_path)
+
     lg.info("Process frame {}".format(frame_number))
 
     # detect objects

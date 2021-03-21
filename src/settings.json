@@ -8,6 +8,7 @@
     },
     "detection":{
         "logging":true,
+        "logLevel":10,
         "darknetPath":"/home/felix/Programs/darknet",
         "labelPath":"/home/felix/Programs/darknet/data/coco.names",
         "weightsPath":"/home/felix/Programs/darknet/yolov3.weights",
