@@ -5,9 +5,21 @@ import json
 
 import sys
 import numpy as np
-import argparse
 import time
 import logging as lg
+
+class Detection():
+
+    """Class containing a single detection result"""
+
+    def __init__(self, label, x1, y1, x2, y2):
+        self.label = label
+        self.x1 = x1
+        self.y1 = y1
+        self.x2 = x2
+        self.y2 = y2
+        
+        
 
 class Detector(abc.ABC):
     
@@ -119,8 +131,8 @@ class YOLO_Detector(Detector):
             for i in idxs.flatten():
                 (x, y) = (boxes[i][0], boxes[i][1])
                 (w, h) = (boxes[i][2], boxes[i][3])
-
-                detections.append((self.LABLES[classIDs[i]],(x, y), (x + w, y + h)))
+                det = Detection(self.LABLES[classIDs[i]], x, y, x + w, y + h)
+                detections.append(det)
 
         return detections
 
@@ -152,9 +164,9 @@ class Visualizer():
 
         for bb in detections:
             color = 123
-            cv2.rectangle(image, bb[1], bb[2], color, 2)
-            text = bb[0] 
-            cv2.putText(image, bb[0], (bb[1][0], bb[1][1] - 5), cv2.FONT_HERSHEY_SIMPLEX,
+            cv2.rectangle(image, (bb.x1, bb.y1), (bb.x2, bb.y2), color, 2)
+            text = bb.label 
+            cv2.putText(image, bb.label, (bb.x2, bb.y2 - 5), cv2.FONT_HERSHEY_SIMPLEX,
                         0.5, color, 2)
 
         cv2.imshow('img', image)
