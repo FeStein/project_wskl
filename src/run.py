@@ -7,6 +7,7 @@ import logging as lg
 import json
 
 import SpatioTemporal.detection as det
+#import SpatioTemporal.tube as tb
 
 with open("settings.json") as config_file:
     settings = json.load(config_file)
@@ -37,7 +38,7 @@ lg.info("=======start detection=========")
 
 VIS = det.Visualizer("settings.json")
 
-for frame_number, img_name in enumerate(sequence_images):
+for frame_number, img_name in enumerate(sequence_images[:20]):
     #construct image path and read in img
     img_path = os.path.join(image_sequence_folder, img_name)
 
@@ -46,8 +47,12 @@ for frame_number, img_name in enumerate(sequence_images):
     lg.info("Process frame {}".format(frame_number))
 
     # detect objects
-    detections = YDetect.detect(img)
+    detections = YDetect.detect(img, frame_number)
     
+    for det in detections:
+        if det.label == "truck" or det.label == "bus":
+            det.label = "car"
+
     VIS.visualize(detections,img)
 
 VIS.destruct()

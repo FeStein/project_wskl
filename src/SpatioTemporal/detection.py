@@ -12,13 +12,14 @@ class Detection():
 
     """Class containing a single detection result"""
 
-    def __init__(self, label, x1, y1, x2, y2):
+    def __init__(self, label, x1, y1, x2, y2, frame_number):
         self.label = label
         self.x1 = x1
         self.y1 = y1
         self.x2 = x2
         self.y2 = y2
-        
+        self.frame_number = frame_number #number of the frame detection belongs to
+
         
 
 class Detector(abc.ABC):
@@ -45,7 +46,7 @@ class Detector(abc.ABC):
         print("Hello")
     
     @abc.abstractmethod
-    def detect(self, image):
+    def detect(self, image, frame_number):
         """Detects the bounding boxes given an image
 
         :image: image in opencv format
@@ -85,7 +86,7 @@ class YOLO_Detector(Detector):
 
 
 
-    def detect(self, image):
+    def detect(self, image, frame_number):
         #blop -> forward pass to YOLO obj. detector: bounding boxes + probabilities
         self.image_number += 1
         start = time.time()
@@ -131,7 +132,7 @@ class YOLO_Detector(Detector):
             for i in idxs.flatten():
                 (x, y) = (boxes[i][0], boxes[i][1])
                 (w, h) = (boxes[i][2], boxes[i][3])
-                det = Detection(self.LABLES[classIDs[i]], x, y, x + w, y + h)
+                det = Detection(self.LABLES[classIDs[i]], x, y, x + w, y + h, frame_number)
                 detections.append(det)
 
         return detections
