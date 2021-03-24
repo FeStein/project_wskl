@@ -43,7 +43,6 @@ class Detector(abc.ABC):
     def _init_logging(self, log_level):
         """Init the logging for object detection"""
         lg.basicConfig(format="ObjectDetector - %(levelname)s - %(message)s", level = log_level)
-        print("Hello")
     
     @abc.abstractmethod
     def detect(self, image, frame_number):

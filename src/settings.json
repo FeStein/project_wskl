@@ -17,7 +17,7 @@
         "threshold":0.5
     },
     "tube":{
-        "threshold":0.6,
+        "threshold":0.4,
         "min_tube_length":5,
         "break_frames":3
     }

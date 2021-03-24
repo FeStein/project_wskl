@@ -7,7 +7,7 @@ import logging as lg
 import json
 
 import SpatioTemporal.detection as det
-#import SpatioTemporal.tube as tb
+import SpatioTemporal.tube as tb
 
 with open("settings.json") as config_file:
     settings = json.load(config_file)
@@ -16,7 +16,6 @@ with open("settings.json") as config_file:
 print("Running sequence analysis using YOLO")
 
 if settings["general"]["logging"]:
-    print("Logging is activated - but not implemented yet")
     lg.basicConfig(level=lg.INFO)
 
 #log some basic inputs
@@ -37,8 +36,14 @@ YDetect = det.YOLO_Detector("settings.json")
 lg.info("=======start detection=========")
 
 VIS = det.Visualizer("settings.json")
+frame_number = 0 #oth frame is init  
+init_det_list = [det.Detection("car", 246,162,357,279, frame_number)]
 
-for frame_number, img_name in enumerate(sequence_images[:20]):
+TG = tb.TubeGenerator("settings.json", init_det_list)
+
+for frame_number, img_name in enumerate(sequence_images):
+    frame_number += 1
+
     #construct image path and read in img
     img_path = os.path.join(image_sequence_folder, img_name)
 
@@ -48,11 +53,21 @@ for frame_number, img_name in enumerate(sequence_images[:20]):
 
     # detect objects
     detections = YDetect.detect(img, frame_number)
+
+
+    #set gt as detection
+    x1,y1,_,_,x2,y2,_,_ = gt_list[frame_number -1]
+    dett = det.Detection("car",int(x1),int(y1),int(x2),int(y2),frame_number)
+    detections = [dett]
     
-    for det in detections:
-        if det.label == "truck" or det.label == "bus":
-            det.label = "car"
+    for dett in detections:
+        if dett.label == "truck" or dett.label == "bus":
+            dett.label = "car"
+
+    TG.update(detections)
 
     VIS.visualize(detections,img)
+
+TG.output()
 
 VIS.destruct()

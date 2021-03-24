@@ -1,7 +1,8 @@
 import cv2
 import numpy as np
+import json
 
-import detection
+#import detection
 
 def calculate_IOU(det1, det2):
     """Calculates the intersection over union between two detections
@@ -21,9 +22,10 @@ def calculate_IOU(det1, det2):
     x_right = min(det1.x2, det2.x2)
     y_bottom = max(det1.y1, det2.y1)
     y_top = min(det1.y2, det2.y2)
+
     
     # check if intersection bounding box is negative -> no real intersection
-    if x_right <= x_left or y_bottom <= y_top:
+    if x_right <= x_left or y_top <= y_bottom:
         return 0.0
 
     # compute area of intersection/overlap
@@ -31,8 +33,6 @@ def calculate_IOU(det1, det2):
 
     iou = interArea / (box1Area + box2Area - interArea)
 
-    print(interArea, box1Area, box2Area)
-    
     if iou < 0.0 or iou > 1.0:
         raise ValueError("IoU calculation went wrong (out of bounds)")
 
@@ -82,7 +82,7 @@ class Tube():
         return True
 
     def __len__(self):
-        return len()
+        return len(self.detection_list)
 
     def get_last(self):
         return self.detection_list[-1]
@@ -92,6 +92,9 @@ class Tube():
 
     def get_last_frame(self):
         return self.detection_list[-1].frame_number
+
+    def get_first_frame(self):
+        return self.detection_list[0].frame_number
 
 class TubeGenerator():
 
@@ -113,7 +116,9 @@ class TubeGenerator():
         self.active_tube_list = [] # contains currently "active" tubes
         
         if detection_list:
-            self.update(detection_list, skipcounter = True)
+            for det in detection_list:
+                tube = Tube(det, self.threshold)
+                self.active_tube_list.append(tube)
 
 
     def update(self, detection_list, skipcounter = False):
@@ -126,27 +131,35 @@ class TubeGenerator():
         -----------------------------------------------------------------------
 
         """
+
         if not skipcounter: self.current_frame_number += 1
 
         candidates = detection_list.copy()
         
         # add current detections to tubes
-        for tube in self.tube_list:
+        for tube in self.active_tube_list:
             cand = tube.add(candidates)
-            if cand: 
-                candidates.remove(cand)
 
+        #print("working")
         # create new tubes for leftover detections
-        for left_cand in candidates:
-            new_tube = Tube(left_cand) 
-            self.active_tube_list.append(new_tube)
+        #for left_cand in candidates:
+        #    new_tube = Tube(left_cand) 
+        #    self.active_tube_list.append(new_tube)
 
         # check for inactive
-        def inactive(tube):
-            a = tube.get_last_frame() < self.current_frame_number - self.break_frames        for tube in self.active_tube_list:
-            b = len(Tube) >= self.min_tube_length
-            return a and b
-                 
+        #def inactive(tube):
+        #    a = tube.get_last_frame() < self.current_frame_number - self.break_frames        
+        #    #for tube in self.active_tube_list:
+        #    b = len(Tube) >= self.min_tube_length
+        #    return a and b
+
+    def output(self):
+        print("Num active tubes {}".format(len(self.active_tube_list))) 
+        for i,tube in enumerate(self.active_tube_list):
+            print("Tube number {}".format(i))
+            print("len: {}".format(len(tube)))
+            print("last frame {}".format(tube.get_last_frame()))
+            print("first frame {}".format(tube.get_first_frame()))
         
 
     def save(self, filename):
