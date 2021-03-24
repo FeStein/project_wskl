@@ -6,10 +6,35 @@ def calculate_IOU(det1, det2):
 
     :det1: Frist detction
     :det2: Second detection
+    ---------------------------------------------------------------------------
     :returns: IoU value {0..1}
 
     """
-    pass
+    # compute area of both bounding boxes
+    box1Area = (det1.x2 - det1.x1) * (det1.y2 - det1.y1)
+    box2Area = (det2.x2 - det2.x1) * (det2.y2 - det2.y1)
+
+    # compute corner points of intersection
+    x_left = max(det1.x1, det2.x1)
+    x_right = min(det1.x2, det2.x2)
+    y_bottom = max(det1.y1, det2.y1)
+    y_top = min(det1.y2, det2.y2)
+    
+
+    if x_right <= x_left or y_bottom <= y_top:
+        return 0.0
+
+    # compute area of intersection/overlap
+    interArea = (x_right - x_left) * (y_top - y_bottom)
+
+    iou = interArea / (box1Area + box2Area - interArea)
+
+    print(interArea, box1Area, box2Area)
+    
+    if iou < 0.0 or iou > 1.0:
+        raise ValueError("IoU calculation went wrong (out of bounds)")
+
+    return iou
 
 class Tube():
 
@@ -36,6 +61,8 @@ class TubeGenerator():
         """Initializes a new tube generator. Recommended use: initalize it
         before you loop over the video frames """
 
+        self.current_frame_number = 0
+
 
     def update(self, detection_list):
         """Updates the current tubes by the detections given. Will initialize
@@ -44,6 +71,7 @@ class TubeGenerator():
         :detections: List of detections (output of the detection per frame)
 
         """
+        self.current_frame_number += 1
         pass
 
     def save(self, filename):
@@ -61,4 +89,8 @@ class TubeGenerator():
 
 
 if __name__ == "__main__":
+    d1 =  detection.Detection('car', 507, 205, 561, 241)
+    d2 =  detection.Detection('traffic light', 139, 105, 151, 121)
+    iou = calculate_IOU(d1,d2) 
+    print(iou)
     print("no errors")
