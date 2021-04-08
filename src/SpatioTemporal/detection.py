@@ -20,7 +20,8 @@ class Detection():
         self.y2 = y2
         self.frame_number = frame_number #number of the frame detection belongs to
 
-        
+    def __str__(self):
+        return " ".join([str(i) for i in[self.x1, self.y1, self.x2, self.y2]])
 
 class Detector(abc.ABC):
     
@@ -160,10 +161,9 @@ class Visualizer():
         """
         print("Init vis")
 
-    def visualize(self, detections, image):
+    def visualize(self, detections, image, color = 123):
 
         for bb in detections:
-            color = 123
             cv2.rectangle(image, (bb.x1, bb.y1), (bb.x2, bb.y2), color, 2)
             text = bb.label 
             cv2.putText(image, bb.label, (bb.x2, bb.y2 - 5), cv2.FONT_HERSHEY_SIMPLEX,

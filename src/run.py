@@ -36,12 +36,14 @@ YDetect = det.YOLO_Detector("settings.json")
 lg.info("=======start detection=========")
 
 VIS = det.Visualizer("settings.json")
-frame_number = 0 #oth frame is init  
-init_det_list = [det.Detection("car", 246,162,357,279, frame_number)]
+frame_number = 0 #0th frame is init  
+x1,y1,_,_,x2,y2,_,_ = gt_list[0]
+init_det_list = [det.Detection("car", x1,y1,x2,y2, frame_number)]
 
 TG = tb.TubeGenerator("settings.json", init_det_list)
 
-for frame_number, img_name in enumerate(sequence_images):
+past_dett = None
+for frame_number, img_name in enumerate(sequence_images[:20]):
     frame_number += 1
 
     #construct image path and read in img
@@ -53,20 +55,38 @@ for frame_number, img_name in enumerate(sequence_images):
 
     # detect objects
     detections = YDetect.detect(img, frame_number)
-
-
-    #set gt as detection
-    x1,y1,_,_,x2,y2,_,_ = gt_list[frame_number -1]
-    dett = det.Detection("car",int(x1),int(y1),int(x2),int(y2),frame_number)
-    detections = [dett]
     
+    # set detection of truck or bus equal to car (simplification since I don't
+    # want to custom train a network) 
     for dett in detections:
         if dett.label == "truck" or dett.label == "bus":
             dett.label = "car"
 
+    # filter for car detections (just debugging)
+    detections = [det for det in detections if det.label == "car"] 
+
     TG.update(detections)
 
-    VIS.visualize(detections,img)
+    # visualize current tube in frame
+    vis_det = []
+    for tube in TG.active_tube_list:
+        last = tube.get_last_det()
+        if last.frame_number == frame_number:
+            print(last.frame_number)
+            last.label = str(tube.id)
+            vis_det.append(last)
+    VIS.visualize(vis_det,img,color=(255,0,0))
+
+    #visualize ground turth
+    x1,y1,_,_,x2,y2,_,_ = gt_list[frame_number -1]
+    dett = det.Detection("GT",int(x1),int(y1),int(x2),int(y2),frame_number)
+    detections = [dett]
+    VIS.visualize(detections,img, color=(0,0,255))
+    cv2.imwrite(settings["path"]["output"] + "img_{}.png".format(frame_number),img)
+
+    if len(vis_det) != 0:
+        iou = tb.calculate_IOU(vis_det[-1],dett)
+        print('Ground Truth IoU:{}'.format(iou))
 
 TG.output()
 

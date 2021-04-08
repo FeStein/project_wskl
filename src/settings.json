@@ -1,10 +1,12 @@
 {
     "general":{
-        "logging":true
+        "logging":true,
+        "save_output":true
     },
     "path":{
         "images":"/home/felix/Documents/vot2019/sequences/car1",
-        "ground_truth_name":"groundtruth.txt"
+        "ground_truth_name":"groundtruth.txt",
+        "output":"/home/felix/Documents/output/"
     },
     "detection":{
         "logging":true,
@@ -17,8 +19,9 @@
         "threshold":0.5
     },
     "tube":{
-        "threshold":0.4,
+        "threshold":0.002,
         "min_tube_length":5,
-        "break_frames":3
+        "break_frames":3,
+        "only_init":true
     }
 }

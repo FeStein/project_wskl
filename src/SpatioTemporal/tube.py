@@ -5,36 +5,24 @@ import json
 #import detection
 
 def calculate_IOU(det1, det2):
-    """Calculates the intersection over union between two detections
+    xA = max(det1.x1, det2.x1)
+    yA = max(det1.y1, det2.y1)
+    xB = min(det1.x2, det2.x2)
+    yB = min(det1.y2, det2.y2)
 
-    :det1: Frist detction
-    :det2: Second detection
-    ---------------------------------------------------------------------------
-    :returns: IoU value {0..1}
+    # compute the area of intersection rectangle
+    interArea = abs(max((xB - xA, 0)) * max((yB - yA), 0))
+    if interArea == 0:
+        return 0
+    # compute the area of both the prediction and ground-truth
+    # rectangles
+    boxAArea = abs((det1.x2 - det1.x1) * (det1.y2 - det1.y1))
+    boxBArea = abs((det2.x2 - det2.x1) * (det2.y2 - det2.y1))
 
-    """
-    # compute area of both bounding boxes
-    box1Area = (det1.x2 - det1.x1) * (det1.y2 - det1.y1)
-    box2Area = (det2.x2 - det2.x1) * (det2.y2 - det2.y1)
-
-    # compute corner points of intersection
-    x_left = max(det1.x1, det2.x1)
-    x_right = min(det1.x2, det2.x2)
-    y_bottom = max(det1.y1, det2.y1)
-    y_top = min(det1.y2, det2.y2)
-
-    
-    # check if intersection bounding box is negative -> no real intersection
-    if x_right <= x_left or y_top <= y_bottom:
-        return 0.0
-
-    # compute area of intersection/overlap
-    interArea = (x_right - x_left) * (y_top - y_bottom)
-
-    iou = interArea / (box1Area + box2Area - interArea)
-
-    if iou < 0.0 or iou > 1.0:
-        raise ValueError("IoU calculation went wrong (out of bounds)")
+    # compute the intersection over union by taking the intersection
+    # area and dividing it by the sum of prediction + ground-truth
+    # areas - the interesection area
+    iou = interArea / float(boxAArea + boxBArea - interArea)
 
     return iou
 
@@ -42,15 +30,13 @@ class Tube():
 
     """Tube class, which represents an object present on consecutive frames"""
 
-    def __init__(self, detection, threshold = 0.6):
+    def __init__(self, detection, id, threshold = 0.6):
         """Initializes a new tube """
-        self.detection_list = [] #list of consecutive detections
+        self.detection_list = [] # ordered list of consecutive detections
         self.detection_list.append(detection)
         self.threshold = threshold
         self.label = detection.label
-
-    def add(self, detection):
-        self.detection_list.append(detection)
+        self.id = id
 
     def add(self, detection_candidates):
         """Adds a new detection in a new frame to the tube by finding the
@@ -62,20 +48,20 @@ class Tube():
         return: None 
 
         """
-        best_fit = None
+        best_cand = None
         best_iou = 0.0
-        last_detection = self.get_last()
+        last_detection = self.get_last_det()
     
         for cand in detection_candidates: 
             if cand.label == self.label:
                 curr_iou = calculate_IOU(last_detection, cand)
                 if  curr_iou > best_iou:
                     best_iou = curr_iou 
-                    best_fit = cand
-
+                    best_cand = cand
+        print("Best IoU: {}".format(best_iou))
         if best_iou >= self.threshold:
-            self.detection_list.append(cand)
-            return cand
+            self.detection_list.append(best_cand)
+            return best_cand
         return None
         
     def is_active(self):
@@ -84,10 +70,10 @@ class Tube():
     def __len__(self):
         return len(self.detection_list)
 
-    def get_last(self):
+    def get_last_det(self):
         return self.detection_list[-1]
 
-    def get_first(self):
+    def get_first_det(self):
         return self.detection_list[0]
 
     def get_last_frame(self):
@@ -116,8 +102,8 @@ class TubeGenerator():
         self.active_tube_list = [] # contains currently "active" tubes
         
         if detection_list:
-            for det in detection_list:
-                tube = Tube(det, self.threshold)
+            for id, det in enumerate(detection_list):
+                tube = Tube(det, id, self.threshold)
                 self.active_tube_list.append(tube)
 
 
@@ -131,8 +117,10 @@ class TubeGenerator():
         -----------------------------------------------------------------------
 
         """
-
-        if not skipcounter: self.current_frame_number += 1
+        #this should be changed to a global number, keeping a separate frame
+        #number. keeping separte frame numbers in subclasses is harder to track
+        #errors
+        if not skipcounter: self.current_frame_number += 1 
 
         candidates = detection_list.copy()
         
