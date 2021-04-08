@@ -1,8 +1,7 @@
 import cv2
 import numpy as np
 import json
-
-#import detection
+import SpatioTemporal.detection as det
 
 def calculate_IOU(det1, det2):
     xA = max(det1.x1, det2.x1)
@@ -63,7 +62,42 @@ class Tube():
             self.detection_list.append(best_cand)
             return best_cand
         return None
+
+    def interpolate(self, current_frame_number):
+        """
+        Interpolates bounding boxes if detection frmames are missing.
+
+        current_frame_number: Number of the current frame in the running detection
+        """
+        # check if a detection was added in this frame -> makes no sense otherwise
+        if self.get_last_frame() != current_frame_number:
+            return
         
+        start_frame_number = self.detection_list[-2].frame_number
+        ds = self.detection_list[-2]
+        end_frame_number = self.detection_list[-1].frame_number
+        de = self.detection_list[-1]
+        # check if frames are missing -> if none missing break
+        if  start_frame_number + 1 == end_frame_number:
+            return
+
+        # interpolate over consecutive frames (linear)
+        num_interpolate = end_frame_number - start_frame_number - 1
+
+        #step size
+        xs_s = abs(ds.x1 - de.x1) / (num_interpolate + 2)
+        xe_s = abs(ds.x2 - de.x2) / (num_interpolate + 1) 
+        ys_s = abs(ds.y1 - de.y1) / (num_interpolate + 1)
+        ye_s = abs(ds.y2 - de.y2) / (num_interpolate + 1) 
+
+        for i in range(num_interpolate):
+            xi1 = int(ds.x1 + xs_s * (i + 1))
+            xi2 = int(ds.x2 + xe_s * (i + 1))
+            yi1 = int(ds.y1 + ys_s * (i + 1))
+            yi2 = int(ds.y2 + ye_s * (i + 1))
+            di = det.Detection(ds.label, xi1, yi1, xi2 ,yi2, start_frame_number + i + 1, interpolated = True)
+            self.detection_list.insert(len(self.detection_list) - 1, di)
+
     def is_active(self):
         return True
 
@@ -127,6 +161,7 @@ class TubeGenerator():
         # add current detections to tubes
         for tube in self.active_tube_list:
             cand = tube.add(candidates)
+            tube.interpolate(self.current_frame_number)
 
         #print("working")
         # create new tubes for leftover detections
@@ -150,23 +185,20 @@ class TubeGenerator():
             print("first frame {}".format(tube.get_first_frame()))
         
 
-    def save(self, filename):
+    def save(self, path):
         """Save the detected tubes. Recommended after a detection is finished
+        
+        File Format:
+        frame_number, label, x1, y1, x2, y2, interpolated
 
-        TODO:
-        - create useful format
-        - create useful output
+        file id.tube for each tube
 
-        :filename: path to outputfile
+        :path: path to store tube
         :returns: creates a file containing the tubes
 
         """
-        pass
-
-
-if __name__ == "__main__":
-    d1 =  detection.Detection('car', 507, 205, 561, 241, 1)
-    d2 =  detection.Detection('traffic light', 139, 105, 151, 121, 1)
-    iou = calculate_IOU(d1,d2) 
-    print(iou)
-    print("no errors")
+        for tube in self.active_tube_list:
+            with open(path + "{}.tube".format(tube.id) , 'w+') as f:
+                f.write("Tube:{},{}\n".format(tube.id, len(tube))) 
+                for det in tube.detection_list:
+                    f.write("{}, {}, {}, {}, {}, {}, {}\n".format(det.frame_number, det.label, det.x1, det.y1, det.x2, det.y2, det.interpolated))

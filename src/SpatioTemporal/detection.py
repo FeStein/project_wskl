@@ -12,13 +12,14 @@ class Detection():
 
     """Class containing a single detection result"""
 
-    def __init__(self, label, x1, y1, x2, y2, frame_number):
+    def __init__(self, label, x1, y1, x2, y2, frame_number, interpolated = False):
         self.label = label
         self.x1 = x1
         self.y1 = y1
         self.x2 = x2
         self.y2 = y2
         self.frame_number = frame_number #number of the frame detection belongs to
+        self.interpolated = interpolated
 
     def __str__(self):
         return " ".join([str(i) for i in[self.x1, self.y1, self.x2, self.y2]])
