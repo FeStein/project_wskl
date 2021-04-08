@@ -38,11 +38,17 @@ lg.info("=======start detection=========")
 VIS = det.Visualizer("settings.json")
 frame_number = 0 #0th frame is init  
 x1,y1,_,_,x2,y2,_,_ = gt_list[0]
-init_det_list = [det.Detection("car", x1,y1,x2,y2, frame_number)]
+init_det_list = [det.Detection("car", int(x1), int(y1), int(x2), int(y2), frame_number)]
 
 TG = tb.TubeGenerator("settings.json", init_det_list)
 
+TG_loaded = tb.TubeGenerator("settings.json")
+TG_loaded.load(settings["path"]["output"])
+
+TG_loaded.output()
+
 past_dett = None
+
 for frame_number, img_name in enumerate(sequence_images[:20]):
     frame_number += 1
 
@@ -68,14 +74,25 @@ for frame_number, img_name in enumerate(sequence_images[:20]):
     TG.update(detections)
 
     # visualize current tube in frame
+    #vis_det = []
+    #lookup_list = TG.active_tube_list.copy()
+    #for tube in lookup_list:
+    #    last = tube.get_last_det()
+    #    if last.frame_number == frame_number:
+    #        print(last.frame_number)
+    #        last.label = str(tube.id)
+    #        vis_det.append(last)
+    #VIS.visualize(vis_det,img,color=(255,0,0))
+
+
+    #visualize loaded tube
     vis_det = []
-    for tube in TG.active_tube_list:
-        last = tube.get_last_det()
-        if last.frame_number == frame_number:
-            print(last.frame_number)
-            last.label = str(tube.id)
-            vis_det.append(last)
-    VIS.visualize(vis_det,img,color=(255,0,0))
+    for tube in TG_loaded.active_tube_list:
+        for detec in tube.detection_list:
+            if detec.frame_number == frame_number:
+                detec.label = str(tube.id)
+                vis_det.append(detec)
+    VIS.visualize(vis_det,img,color=(0,255,0))
 
     #visualize ground turth
     x1,y1,_,_,x2,y2,_,_ = gt_list[frame_number -1]
@@ -84,9 +101,11 @@ for frame_number, img_name in enumerate(sequence_images[:20]):
     VIS.visualize(detections,img, color=(0,0,255))
     cv2.imwrite(settings["path"]["output"] + "img_{}.png".format(frame_number),img)
 
-    if len(vis_det) != 0:
-        iou = tb.calculate_IOU(vis_det[-1],dett)
-        print('Ground Truth IoU:{}'.format(iou))
+    #if len(vis_det) != 0:
+    #    iou = tb.calculate_IOU(vis_det[-1],dett)
+    #    print('Ground Truth IoU:{}'.format(iou))
+
+TG.save(settings["path"]["output"] + "")
 
 TG.output()
 

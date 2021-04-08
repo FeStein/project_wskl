@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 import json
+import os 
+
 import SpatioTemporal.detection as det
 
 def calculate_IOU(det1, det2):
@@ -85,10 +87,10 @@ class Tube():
         num_interpolate = end_frame_number - start_frame_number - 1
 
         #step size
-        xs_s = abs(ds.x1 - de.x1) / (num_interpolate + 2)
-        xe_s = abs(ds.x2 - de.x2) / (num_interpolate + 1) 
-        ys_s = abs(ds.y1 - de.y1) / (num_interpolate + 1)
-        ye_s = abs(ds.y2 - de.y2) / (num_interpolate + 1) 
+        xs_s = (de.x1 - ds.x1) / (num_interpolate + 1)
+        xe_s = (de.x2 - ds.x2) / (num_interpolate + 1) 
+        ys_s = (de.y1 - ds.y1) / (num_interpolate + 1)
+        ye_s = (de.y2 - ds.y2) / (num_interpolate + 1) 
 
         for i in range(num_interpolate):
             xi1 = int(ds.x1 + xs_s * (i + 1))
@@ -199,6 +201,25 @@ class TubeGenerator():
         """
         for tube in self.active_tube_list:
             with open(path + "{}.tube".format(tube.id) , 'w+') as f:
-                f.write("Tube:{},{}\n".format(tube.id, len(tube))) 
+                #f.write("Tube:{},{}\n".format(tube.id, len(tube))) 
                 for det in tube.detection_list:
                     f.write("{}, {}, {}, {}, {}, {}, {}\n".format(det.frame_number, det.label, det.x1, det.y1, det.x2, det.y2, det.interpolated))
+
+    def load(self, path):
+        """
+        Loads a TubeGenerator from a collection of Tube files.
+        """
+        tube_files = [f for f in os.listdir(path) if f.split('.')[-1] == "tube"]
+
+        for fl in tube_files:
+            id = fl.split('.')[0]
+            with open(path + fl, 'r') as f:
+                for i, line in enumerate(f):
+                    args = line.strip().split(',')
+                    dt = det.Detection(args[1], int(float(args[2])), int(float(args[3])), int(float(args[4])), int(float(args[5])), int(float(args[0])), bool(args[6]))
+                    if i == 0:
+                        tube = Tube(dt, id)
+                    else:
+                        tube.detection_list.append(dt)
+
+                self.active_tube_list.append(tube)
