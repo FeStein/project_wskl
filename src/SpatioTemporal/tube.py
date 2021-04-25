@@ -187,6 +187,7 @@ class TubeGenerator():
 
         self.switch_extra = settings["extrapolate"]
         self.switch_inter = settings["interpolate"]
+        self.only_pre = settings["only_pre"]
 
         self.id_counter = 0
         
@@ -239,10 +240,11 @@ class TubeGenerator():
                     self.active_tube_list.remove(tube)
 
         #initialize tubes for left over detections
-        for cand in candidates:
-            new_tube = Tube(cand, self.id_counter)
-            self.id_counter += 1
-            self.active_tube_list.append(new_tube)
+        if not self.only_pre:
+            for cand in candidates:
+                new_tube = Tube(cand, self.id_counter)
+                self.id_counter += 1
+                self.active_tube_list.append(new_tube)
 
         # prioritize longer tubes
         self.active_tube_list.sort(key = lambda t: len(t), reverse = True)
