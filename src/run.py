@@ -105,6 +105,9 @@ for frame_number, img_name in enumerate(sequence_images[:20]):
     #    iou = tb.calculate_IOU(vis_det[-1],dett)
     #    print('Ground Truth IoU:{}'.format(iou))
 
+
+TG.finish()
+
 TG.save(settings["path"]["output"] + "")
 
 TG.output()

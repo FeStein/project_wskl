@@ -21,7 +21,9 @@
     "tube":{
         "threshold":0.002,
         "min_tube_length":5,
-        "break_frames":3,
-        "only_init":true
+        "break_frames":2,
+        "only_init":true,
+        "extrapolate":true,
+        "interpolate":false
     }
 }

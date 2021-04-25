@@ -74,6 +74,9 @@ class Tube():
         # check if a detection was added in this frame -> makes no sense otherwise
         if self.get_last_frame() != current_frame_number:
             return
+
+        if len(self.detection_list) < 2:
+            return
         
         start_frame_number = self.detection_list[-2].frame_number
         ds = self.detection_list[-2]
@@ -111,17 +114,22 @@ class Tube():
         if self.get_last_frame() == current_frame_number:
             return
 
-        print("curr_frame: {}, bf: {}, bff {}".format(current_frame_number, self.detection_list[-1].frame_number, self.detection_list[-2].frame_number))
+        if len(self.detection_list) < 2:
+            return
 
-        # check if two consecutive frames are given
-        if self.detection_list[-1].frame_number != current_frame_number - 1:
-            return
-        if self.detection_list[-2].frame_number != current_frame_number - 2:
-            return
-        
         # Extrapolation (2 -> 1 -> curr_frame)
         d_1 = self.detection_list[-1]
         d_2 = self.detection_list[-2]
+
+        # check if two consecutive frames are given
+        if d_1.frame_number != current_frame_number - 1:
+            return
+        if d_2.frame_number != current_frame_number - 2:
+            return
+        
+        # check if its the third extrapolation
+        if d_1.interpolated and d_2.interpolated:
+            return
 
         # get middle points
         mx_1, my_1 = (d_1.x2 - d_1.x1) / 2 + d_1.x1 , (d_1.y2 - d_1.y1) / 2 + d_1.y1
@@ -176,11 +184,17 @@ class TubeGenerator():
         self.current_frame_number = 0
         self.inactive_tube_list = [] # contains all tubes
         self.active_tube_list = [] # contains currently "active" tubes
+
+        self.switch_extra = settings["extrapolate"]
+        self.switch_inter = settings["interpolate"]
+
+        self.id_counter = 0
         
         if detection_list:
-            for id, det in enumerate(detection_list):
-                tube = Tube(det, id, self.threshold)
+            for det in detection_list:
+                tube = Tube(det, self.id_counter, self.threshold)
                 self.active_tube_list.append(tube)
+                self.id_counter +=1
 
 
     def update(self, detection_list, skipcounter = False):
@@ -203,8 +217,35 @@ class TubeGenerator():
         # add current detections to tubes
         for tube in self.active_tube_list:
             cand = tube.add(candidates)
-            tube.extrapolate(self.current_frame_number)
-            #tube.interpolate(self.current_frame_number)
+            if self.switch_extra:
+                tube.extrapolate(self.current_frame_number)
+            if self.switch_inter:
+                tube.interpolate(self.current_frame_number)
+            if cand:
+                candidates.remove(cand)
+    
+        # check active status
+        self._check_active()
+        for tube in [t for t in self.active_tube_list if t.get_last_frame() < self.current_frame_number]:
+            active = True
+            if tube.get_last_frame() + self.min_tube_length < self.current_frame_number:
+                active = False
+            
+            if not active:
+                if len(tube) > self.min_tube_length:
+                    self.inactive_tube_list.append(tube)
+                    self.active_tube_list.remove(tube)
+                else:
+                    self.active_tube_list.remove(tube)
+
+        #initialize tubes for left over detections
+        for cand in candidates:
+            new_tube = Tube(cand, self.id_counter)
+            self.id_counter += 1
+            self.active_tube_list.append(new_tube)
+
+        # prioritize longer tubes
+        self.active_tube_list.sort(key = lambda t: len(t), reverse = True)
 
         #print("working")
         # create new tubes for leftover detections
@@ -212,17 +253,33 @@ class TubeGenerator():
         #    new_tube = Tube(left_cand) 
         #    self.active_tube_list.append(new_tube)
 
-        # check for inactive
-        #def inactive(tube):
-        #    a = tube.get_last_frame() < self.current_frame_number - self.break_frames        
-        #    #for tube in self.active_tube_list:
-        #    b = len(Tube) >= self.min_tube_length
-        #    return a and b
+    def _check_active(self):
+        for tube in [t for t in self.active_tube_list if t.get_last_frame() < self.current_frame_number]:
+            active = True
+            if tube.get_last_frame() + self.min_tube_length <= self.current_frame_number:
+                active = False
+            
+            if not active:
+                if len(tube) > self.min_tube_length:
+                    self.inactive_tube_list.append(tube)
+                    self.active_tube_list.remove(tube)
+                else:
+                    self.active_tube_list.remove(tube)
+
+    def finish(self):
+        """
+        Finishes the TubeGenerator -> tubes are set to inactive and
+        other tubes are deinitialized
+        """
+        for tube in [t for t in self.active_tube_list if len(t) >= self.min_tube_length]:
+            self.inactive_tube_list.append(tube)
+        self.active_tube_list = []
+
 
     def output(self):
-        print("Num active tubes {}".format(len(self.active_tube_list))) 
-        for i,tube in enumerate(self.active_tube_list):
-            print("Tube number {}".format(i))
+        print("Num active tubes {}".format(len(self.inactive_tube_list))) 
+        for i,tube in enumerate(self.inactive_tube_list):
+            print("Tube ID {}".format(tube.id))
             print("len: {}".format(len(tube)))
             print("last frame {}".format(tube.get_last_frame()))
             print("first frame {}".format(tube.get_first_frame()))
@@ -240,7 +297,7 @@ class TubeGenerator():
         :returns: creates a file containing the tubes
 
         """
-        for tube in self.active_tube_list:
+        for tube in self.inactive_tube_list:
             with open(path + "{}.tube".format(tube.id) , 'w+') as f:
                 #f.write("Tube:{},{}\n".format(tube.id, len(tube))) 
                 for det in tube.detection_list:
