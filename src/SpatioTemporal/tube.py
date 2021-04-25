@@ -100,6 +100,46 @@ class Tube():
             di = det.Detection(ds.label, xi1, yi1, xi2 ,yi2, start_frame_number + i + 1, interpolated = True)
             self.detection_list.insert(len(self.detection_list) - 1, di)
 
+    def extrapolate(self, current_frame_number):
+        """
+        Extrapolates a bounding box to the current frame if 2 consecutive
+        frames (curr_frame number - 1, curr_frame - 2) are given.
+
+        current_frame_number: Number of the current frame in the running detection
+        """
+        # check if a detection was added in this frame -> makes no sense otherwise
+        if self.get_last_frame() == current_frame_number:
+            return
+
+        print("curr_frame: {}, bf: {}, bff {}".format(current_frame_number, self.detection_list[-1].frame_number, self.detection_list[-2].frame_number))
+
+        # check if two consecutive frames are given
+        if self.detection_list[-1].frame_number != current_frame_number - 1:
+            return
+        if self.detection_list[-2].frame_number != current_frame_number - 2:
+            return
+        
+        # Extrapolation (2 -> 1 -> curr_frame)
+        d_1 = self.detection_list[-1]
+        d_2 = self.detection_list[-2]
+
+        # get middle points
+        mx_1, my_1 = (d_1.x2 - d_1.x1) / 2 + d_1.x1 , (d_1.y2 - d_1.y1) / 2 + d_1.y1
+        mx_2, my_2 = (d_2.x2 - d_2.x1) / 2 + d_2.x1 , (d_2.y2 - d_2.y1) / 2 + d_2.y1
+
+        # Drift
+        dx = mx_2 - mx_1
+        dy = my_2 - my_2 
+
+        #Extrapolation
+        xi1 = d_1.x1 + dx
+        xi2 = d_1.x2 + dx
+        yi1 = d_2.y1 + dy
+        yi2 = d_2.y2 + dy
+
+        di = det.Detection(d_1.label, xi1, yi1, xi2 ,yi2, current_frame_number, interpolated = True)
+        self.detection_list.append(di)
+
     def is_active(self):
         return True
 
@@ -163,7 +203,8 @@ class TubeGenerator():
         # add current detections to tubes
         for tube in self.active_tube_list:
             cand = tube.add(candidates)
-            tube.interpolate(self.current_frame_number)
+            tube.extrapolate(self.current_frame_number)
+            #tube.interpolate(self.current_frame_number)
 
         #print("working")
         # create new tubes for leftover detections
