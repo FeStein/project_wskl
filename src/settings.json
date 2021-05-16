@@ -4,7 +4,7 @@
         "save_output":true
     },
     "path":{
-        "images":"/home/felix/Documents/vot2019/sequences/car1",
+        "images":"/home/felix/Documents/vot2019/sequences/gymnastics1",
         "ground_truth_name":"groundtruth.txt",
         "output":"/home/felix/Documents/output/"
     },
@@ -20,10 +20,11 @@
     },
     "tube":{
         "threshold":0.002,
+        "only_pre":false,
         "min_tube_length":5,
-        "break_frames":2,
+        "break_frames":3,
         "only_init":true,
-        "extrapolate":true,
-        "interpolate":false
+        "extrapolate":false,
+        "interpolate":true
     }
 }
