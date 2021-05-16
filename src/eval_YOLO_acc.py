@@ -26,9 +26,13 @@ sequence_names = sorted(os.listdir(sequence_path))
 
 #sequence_names = ["car1"]
 
-csv_list = [["folder_name","total_frames","accuracy","skipped_frames","first_label","first_occ","second_label", "second_occ", "third_label", "third_occ"]]
+csv_line = ["folder_name","total_frames","accuracy","skipped_frames","first_label","first_occ","second_label", "second_occ", "third_label", "third_occ"]
+with open("../logs/accuracy_YOLO.log",'w+') as f:
+    f.write(",".join(csv_line) + "\n")
 
 for sname in tqdm(sequence_names):
+    if sname == "flamingo1":
+        continue
 
     print("Current sequence: {}".format(sname))
 
@@ -140,9 +144,7 @@ for sname in tqdm(sequence_names):
         mc_list.append(str(mc[1]))
     
     csv_line = [sname,str(len(sequence_images)),str(acc) ,str(number_no_detection)] + mc_list
-    csv_list.append(csv_line)
 
-#print csv_list
-with open("../logs/accuracy_YOLO.log",'w+') as f:
-    for csv_line in csv_list:
+    #print csv_list
+    with open("../logs/accuracy_YOLO.log",'a') as f:
         f.write(",".join(csv_line) + "\n")
