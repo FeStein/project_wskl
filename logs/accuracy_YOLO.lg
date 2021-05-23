@@ -1,57 +1,59 @@
-folder_name,total_frames,accuracy,skipped_frames,first_label,first_occ,second_label,second_occ,third_label,third_occ
-agility,100,0.0962134987088212,43,person,90,car,7,dummy,2
-ants1,325,0.009594525911227583,119,dummy,118,sink,112,bowl,39
-ball2,41,0.0011019987929136933,40,person,37,sports ball,2,dummy,2
-ball3,171,0.0008047920839135186,167,person,147,sports ball,23,skateboard,1
-basketball,725,0.22640284040136074,37,person,718,skateboard,3,car,2
-birds1,339,0.0,339,dummy,247,bird,90,person,1
-bolt1,350,0.11288045836686178,25,person,343,sports ball,5,tvmonitor,2
-book,175,0.20412369279871911,3,person,137,chair,28,sofa,8
-butterfly,151,0.0035510095467202584,148,dummy,146,bird,5
+agility,100,0.027029744798209833,78,person,82,car,14,dummy,2
+ants1,325,0.005248884868911665,119,dummy,118,sink,112,bowl,39
+ball2,41,0.0232630971280127,39,person,37,sports ball,2,dummy,2
+ball3,171,0.10677122186443502,113,person,147,sports ball,23,skateboard,1
+basketball,725,0.6695302972731274,16,person,724,parking meter,1
+birds1,339,0.12416303798181465,266,dummy,247,bird,90,person,1
+bolt1,350,0.6771909161849379,0,person,349,sports ball,1
+book,175,0.17428955936161564,1,person,162,laptop,8,chair,4
+butterfly,151,0.020582061779831188,146,dummy,146,bird,5
 car1,742,0.7115096654817277,44,car,703,dummy,36,traffic light,3
-conduction1,345,0.0,345,dummy,248,horse,27,bicycle,25
-crabs1,160,0.043850447572825975,96,dog,82,boat,28,horse,25
-dinosaur,326,0.021360074510557523,116,person,214,chair,56,bottle,45
-dribble,111,0.2968581164144823,0,person,111
-drone1,355,0.0008714380828170147,331,dummy,251,person,57,aeroplane,35
-drone_across,147,0.0,147,dummy,111,bird,23,person,11
-drone_flip,113,0.0030095227670623942,95,dummy,67,aeroplane,39,chair,7
-fernando,292,0.15422671399599824,38,cat,265,dog,18,tvmonitor,5
-fish1,366,0.031775208702169766,321,dummy,292,broccoli,71,person,3
-fish2,310,0.021340597647677765,259,dummy,224,carrot,67,orange,7
-frisbee,248,0.0,248,frisbee,232,person,12,tennis racket,3
-glove,120,0.10437951060708986,2,chair,66,person,29,toilet,25
-godfather,366,0.11470417639153767,45,person,362,tie,4
-gymnastics1,567,0.0017416325304871324,535,person,533,chair,13,tie,7
-gymnastics2,240,0.04944918537062837,140,person,230,traffic light,5,tvmonitor,3
-gymnastics3,118,0.01761441406417744,31,person,100,dummy,16,frisbee,1
-hand,267,0.09394928566755634,17,chair,161,person,103,cell phone,2
-hand2,145,0.14291736107641018,9,person,143,tvmonitor,2
-handball1,377,0.02100842925592624,209,person,355,skateboard,12,sports ball,4
-handball2,402,0.07026118182573265,138,person,374,dummy,13,skateboard,10
-helicopter,708,0.052381654694339565,377,person,449,car,82,aeroplane,69
-iceskater1,661,0.030730320236250493,341,person,633,tennis racket,11,sports ball,6
-iceskater2,707,0.14608066094418087,41,person,684,car,8,dog,5
-lamb,100,0.14996840847006448,26,cow,54,sheep,25,horse,17
+crabs1,160,0.11231058793468215,102,dog,82,boat,31,horse,24
+dinosaur,326,0.2672614907478901,0,person,249,cat,59,bird,6
+dribble,111,0.17199394878603877,0,person,93,frisbee,12,sports ball,4
+drone1,355,6.64759395505902e-06,347,dummy,251,person,58,aeroplane,34
+drone_across,147,0.10106350594659554,123,dummy,111,bird,23,person,11
+drone_flip,113,0.0,113,dummy,67,aeroplane,38,chair,7
+fernando,292,0.5598622818966013,1,cat,265,dog,25,bird,1
+fish1,366,0.0008254593145098852,358,dummy,292,broccoli,71,person,3
+fish2,310,0.008786304854362102,276,dummy,224,carrot,71,orange,6
+flamingo1,1377,0.0038677879389940957,1135,chair,887,person,250,umbrella,171
+frisbee,248,0.5846588463503513,6,frisbee,175,person,48,tennis racket,24
+girl,1500,0.7663950136967578,0,person,1498,dog,2
+glove,120,0.06089476810321889,2,chair,56,person,40,toilet,24
+godfather,366,0.15515612514647217,5,person,361,dog,3,baseball glove,1
+graduate,844,0.5139991352426511,207,person,624,dummy,163,car,47
+gymnastics1,567,0.6451353720645326,25,person,558,horse,3,tennis racket,2
+gymnastics2,240,0.5851136596334382,9,person,236,tennis racket,1,skateboard,1
+gymnastics3,118,0.3128423925758746,27,person,100,dummy,16,frisbee,2
+hand,267,0.08126118778421804,0,person,258,cell phone,4,tvmonitor,2
+hand2,145,0.018199360340446835,0,person,145
+handball1,377,0.28283498679101043,9,person,374,horse,3
+handball2,402,0.23548644359635554,94,person,378,dummy,13,skateboard,9
+helicopter,708,0.10224391867702853,317,person,273,car,145,kite,142
+iceskater1,661,0.6447726080418141,2,person,657,dummy,2,bird,2
+iceskater2,707,0.5934515377742718,2,person,696,dog,5,horse,4
+lamb,100,0.6797621996996277,0,cow,33,dog,33,horse,25
 leaves,63,0.0,63,dummy,33,car,23,person,7
-marathon,101,0.18215572357634296,1,person,93,car,5,backpack,2
-matrix,100,0.12851562484429013,14,person,93,dummy,3,dog,2
-monkey,101,0.051549011809567336,61,dog,49,backpack,17,person,15
-motocross1,164,0.0274341283539558,135,dummy,90,motorbike,44,person,16
-pedestrian1,140,0.0,140,car,75,person,25,stop sign,18
-polo,111,0.11503236229226782,31,person,75,horse,28,car,8
-rabbit,158,0.0,158,dummy,150,skis,4,person,4
-rabbit2,100,0.0006919570126429352,97,dog,29,bear,22,bird,19
-road,558,0.008490204121172547,499,person,335,dummy,104,horse,55
-rowing,101,0.11394656267191669,21,person,75,boat,25,surfboard,1
-shaking,365,0.1984629379614326,1,person,360,handbag,2,backpack,2
-singer2,366,0.12847455465959545,117,person,330,umbrella,18,dummy,10
-singer3,131,0.08008021248542323,23,person,110,toothbrush,9,cell phone,3
-soccer1,392,0.15042001217097453,142,person,258,dummy,123,cake,8
-soccer2,129,0.011825518628135922,85,person,120,tvmonitor,8,dummy,1
-soldier,138,0.0,138,dummy,125,bird,8,person,3
-surfing,120,0.0017304059312871771,113,person,76,surfboard,40,dummy,2
-tiger,365,0.05352844748693321,14,pottedplant,348,dummy,13,person,4
-wheel,101,0.008889845411566923,92,person,52,bicycle,16,motorbike,13
-wiper,341,0.025182475259474268,245,traffic light,134,dummy,114,car,93
-zebrafish1,400,0.0006922634676112872,361,dummy,355,refrigerator,19,sink,13
+marathon,101,0.016595153767815667,0,person,97,car,4
+matrix,100,0.06164599418243039,12,person,94,dummy,3,dog,1
+monkey,101,0.6813960187348778,5,dog,88,cat,4,bear,3
+motocross1,164,0.24887645789612023,100,dummy,90,motorbike,48,person,16
+nature,999,0.594149802142652,78,bird,999
+pedestrian1,140,0.6622794825721163,0,person,140
+polo,111,0.6366836560089358,0,person,107,horse,4
+rabbit,158,0.00019534302234724174,157,dummy,150,person,5,skis,3
+rabbit2,100,0.5793134301538394,17,dog,29,bear,22,bird,19
+road,558,0.45838101247620977,112,person,299,dummy,104,motorbike,82
+rowing,101,0.04599269197711864,0,person,101
+shaking,365,0.11227614007671094,3,person,360,umbrella,3,backpack,1
+singer2,366,0.6862315548604097,11,person,356,dummy,10
+singer3,131,0.2014457160356198,0,person,130,cell phone,1
+soccer1,392,0.057903379686016145,156,person,258,dummy,123,cake,8
+soccer2,129,0.5087711104138424,24,person,127,dummy,1,tvmonitor,1
+soldier,138,0.018949652987544082,125,dummy,125,bird,8,person,3
+surfing,120,0.7057906440231251,2,person,118,dummy,2
+tiger,365,0.045383754708069955,13,pottedplant,278,person,74,dummy,13
+wheel,101,0.26928466157156306,0,bicycle,100,person,1
+wiper,341,0.23192351029254593,179,dummy,114,traffic light,114,car,113
+zebrafish1,400,0.0027623808787320377,358,dummy,355,refrigerator,19,sink,13
