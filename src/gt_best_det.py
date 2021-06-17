@@ -60,8 +60,7 @@ for frame_number, img_name in enumerate(sequence_images):
     lg.info("Process frame {}".format(frame_number))
 
     # detect objects
-    #detections = YDetect.detect(img, frame_number)
-    detections = [] 
+    detections = YDetect.detect(img, frame_number)
     # set detection of truck or bus equal to car (simplification since I don't
     # want to custom train a network) 
     for dett in detections:
@@ -71,29 +70,7 @@ for frame_number, img_name in enumerate(sequence_images):
     # filter for car detections (just debugging)
     #detections = [det for det in detections if det.label == "car"] 
 
-    #TG.update(detections)
 
-    # visualize current tube in frame
-    #vis_det = []
-    #lookup_list = TG.active_tube_list.copy()
-    #for tube in lookup_list:
-    #    last = tube.get_last_det()
-    #    if last.frame_number == frame_number:
-    #        print(last.frame_number)
-    #        last.label = str(tube.id)
-    #        vis_det.append(last)
-    #VIS.visualize(vis_det,img,color=(255,0,0))
-
-
-    #visualize loaded tube
-    if False:
-        vis_det = []
-        for tube in TG_loaded.active_tube_list:
-            for detec in tube.detection_list:
-                if detec.frame_number == frame_number:
-                    detec.label = str(tube.id)
-                    vis_det.append(detec)
-        VIS.visualize(vis_det,img,color=(0,255,0))
 
     #visualize ground turth
     x1,y1,x2,y2,x3,y3,x4,y4 = gt_list[frame_number -1]
@@ -104,17 +81,29 @@ for frame_number, img_name in enumerate(sequence_images):
     yy2 = max(y1,y2,y3,y4)
 
     dett = det.Detection("",int(xx1),int(yy1),int(xx2),int(yy2),frame_number)
-    detections = [dett]
+    ydetections = [dett]
     pts = np.array([[x1,y1],[x2,y2],[x3,y3],[x4,y4]], np.int32)
     pts = pts.reshape((-1,1,2))
-    cv2.polylines(img,[pts],True,(0,255,255),2)
-    VIS.visualize(detections,img, color=(0,0,255))
+    #cv2.polylines(img,[pts],True,(0,255,255),2)
+    VIS.visualize(ydetections,img, color=(0,0,255))
+
+    gt_dett = det.Detection("groundTruth",int(xx1),int(yy1),int(xx2),int(yy2),frame_number)
+
+    #find best matching IoU
+    best_iou = 0.0
+    best_label = "YOLO"
+    best_det = None
+    for trial_det in detections:
+        curr_iou = tb.calculate_IOU(trial_det, gt_dett)
+        if curr_iou >= best_iou:
+            best_iou, best_label, best_det = curr_iou, trial_det.label, trial_det
+
+    print(len(detections))
+    if best_iou != 0.0 and best_det:
+        print(best_label)
+        VIS.visualize([best_det],img, color=(255,255,255))
+
     cv2.imwrite(settings["path"]["output"] + "img_{}.png".format(frame_number),img)
-
-    #if len(vis_det) != 0:
-    #    iou = tb.calculate_IOU(vis_det[-1],dett)
-    #    print('Ground Truth IoU:{}'.format(iou))
-
 
 TG.finish()
 

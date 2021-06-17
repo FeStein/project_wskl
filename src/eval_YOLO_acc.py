@@ -22,24 +22,23 @@ if settings["general"]["logging"]:
 lg.info("video stream: {}".format(settings["path"]["images"]))
 
 sequence_path = "/home/felix/Documents/vot2019/sequences"
-sequence_names = sorted(os.listdir(sequence_path))
+sequence_names = sorted(os.listdir(sequence_path))[11:]
 
-#sequence_names = ["car1"]
+sequence_names = ["wheel","bolt1","girl","gymnastics1",
+        "gymnastics2","iceskater1","pedestrian1","polo","singer2","surfing"]
 
-csv_line = ["folder_name","total_frames","accuracy","skipped_frames","first_label","first_occ","second_label", "second_occ", "third_label", "third_occ"]
-with open("../logs/accuracy_YOLO.log",'w+') as f:
-    f.write(",".join(csv_line) + "\n")
+#csv_line = ["folder_name","total_frames","accuracy","skipped_frames","first_label","first_occ","second_label", "second_occ", "third_label", "third_occ"]
+#with open("../logs/accuracy_YOLO.log",'w+') as f:
+#    f.write(",".join(csv_line) + "\n")
 
 for sname in tqdm(sequence_names):
-    if sname == "flamingo1":
-        continue
 
     print("Current sequence: {}".format(sname))
 
     #specify sequence path
     image_sequence_folder = os.path.join("/home/felix/Documents/vot2019/sequences", sname, "color")
     sequence_images = sorted(os.listdir(image_sequence_folder))
-    ground_truth_path = os.path.join(settings["path"]["images"], settings["path"]["ground_truth_name"])
+    ground_truth_path = os.path.join("/home/felix/Documents/vot2019/sequences", sname, "groundtruth.txt")
 
     #parse ground truth
     with open(ground_truth_path, 'r') as f:
@@ -83,6 +82,8 @@ for sname in tqdm(sequence_names):
             if dett.label == "truck" or dett.label == "bus":
                 dett.label = "car"
     
+        detections = [det for det in detections if det.label == "person"]
+    
         # filter for car detections (just debugging)
         #detections = [det for det in detections if det.label == "car"] 
     
@@ -91,6 +92,7 @@ for sname in tqdm(sequence_names):
         ################################################################################
         
         #create ground truth detection
+        print(len(gt_list))
         x1,y1,x2,y2,x3,y3,x4,y4 = gt_list[frame_number -1]
         xx1 = min(x1,x2,x3,x4)
         xx2 = max(x1,x2,x3,x4)

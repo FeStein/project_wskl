@@ -1,6 +1,6 @@
 {
     "general":{
-        "logging":true,
+        "logging":false,
         "save_output":true
     },
     "path":{
@@ -9,7 +9,7 @@
         "output":"/home/felix/Documents/output/"
     },
     "detection":{
-        "logging":true,
+        "logging":false,
         "logLevel":10,
         "darknetPath":"/home/felix/Programs/darknet",
         "labelPath":"/home/felix/Programs/darknet/data/coco.names",
@@ -19,12 +19,12 @@
         "threshold":0.5
     },
     "tube":{
-        "threshold":0.002,
-        "only_pre":false,
+        "threshold":0.02,
+        "only_pre":true,
         "min_tube_length":5,
-        "break_frames":3,
+        "break_frames":8,
         "only_init":true,
         "extrapolate":false,
-        "interpolate":true
+        "interpolate":false
     }
 }

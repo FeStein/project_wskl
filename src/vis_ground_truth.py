@@ -61,9 +61,9 @@ for frame_number, img_name in enumerate(sequence_images):
 
     # detect objects
     #detections = YDetect.detect(img, frame_number)
-    detections = [] 
     # set detection of truck or bus equal to car (simplification since I don't
     # want to custom train a network) 
+    detections = []
     for dett in detections:
         if dett.label == "truck" or dett.label == "bus":
             dett.label = "car"
@@ -107,7 +107,7 @@ for frame_number, img_name in enumerate(sequence_images):
     detections = [dett]
     pts = np.array([[x1,y1],[x2,y2],[x3,y3],[x4,y4]], np.int32)
     pts = pts.reshape((-1,1,2))
-    cv2.polylines(img,[pts],True,(0,255,255),2)
+    #cv2.polylines(img,[pts],True,(0,255,255),2)
     VIS.visualize(detections,img, color=(0,0,255))
     cv2.imwrite(settings["path"]["output"] + "img_{}.png".format(frame_number),img)
 
